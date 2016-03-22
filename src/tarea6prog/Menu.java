@@ -62,7 +62,7 @@ public class Menu {
             switch (opcionElegida) {
                 case 1: //Entrada Camareros 
                     entradaCamarero();
-                    listarCamareros();
+                    //listarCamareros();
                     break;
                 case 2: //Consultar Camareros
                     listarCamareros();
@@ -336,12 +336,12 @@ public class Menu {
      */
     public static void entradaServivioMesa() {
         BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
-        int cadena;
-        cadena = 0;
+        String nifCamarero="";
+        int cadena = 0;
         char respuesta = 0;
         int bandera = 0;
         servMesa = new ServicioMesa();
-    /* Solicitamos el nombre */
+/* Solicitamos el nombre */
         System.out.print("Introduce el número de servicio: ");
 
         try {
@@ -357,7 +357,7 @@ public class Menu {
             e.printStackTrace();
         }
         
-    /* Solicitamos el número de mesa */
+/* Solicitamos el número de mesa */
         System.out.print("Introduce el número de mesa (1/12): ");
 
         try {
@@ -366,6 +366,7 @@ public class Menu {
             if ((cadena > 0) && (cadena <= 12)) {
                 //buscarServivioMesaNumeroServicio(cadena);
                 if (buscarUltimoServicioMesaNumero(cadena)>0) {
+                    System.out.println("Debes de dar de baja la mesa " + cadena + " en el servcio número: " + buscarUltimoServicioMesaNumero(cadena));
                          bandera = 3;
                 } else {
                     servMesa.setNumeroMesa(cadena);
@@ -380,14 +381,33 @@ public class Menu {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /* La fecha no hace falta solicitarla, se inserta automáticamente con el método getFecha() */
+/* La fecha no hace falta solicitarla, se inserta automáticamente con el método getFecha() */
         // System.out.println("Fecha de alta: ");
 
         if (cadena > 0) {
             servMesa.getFecha();
         } 
-        
-        
+/* Solicitamos el NIF camarero */
+        System.out.print("Introduce el NIF del camarero: ");
+
+        try {
+            
+            nifCamarero = entrada.readLine();
+            if (nifCamarero != "") {
+                //buscarServivioMesaNumeroServicio(cadena);
+                if (comprobarCamarerosDNI(nifCamarero) != "") {
+                     servMesa.setNif(nifCamarero);
+                } else {
+                    bandera = 4;
+                }
+             } else {
+                bandera = 4;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }       
+     
         if (bandera == 0) {
             System.out.println("Grabar los Datos :");
             try {
@@ -411,7 +431,7 @@ public class Menu {
                     System.out.println("La mesa aún está activa");
                     break;
                 case 4:
-                    System.out.println("Entradas incorrecta del Codigo");
+                    System.out.println("No existe el camarero");
                     break;
                 case 5:
                     System.out.println("Entradas incorrecta del Fecha de Alta");
@@ -450,6 +470,22 @@ public class Menu {
            
         }        
         return bandera;        
+    }
+            public static String comprobarCamarerosDNI(String cadena) {
+        String nifCamarero = "";
+        ArrayList<Camareros> c = new ArrayList<Camareros>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        Camareros camarero = new Camareros();
+        if (archivo.CrearArchivoCamareros()) {
+            c = archivo.LeerArchivoCamareros();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getNIF().equals(cadena)) {
+                    //System.out.println(c.get(i).toString());
+                    nifCamarero = c.get(i).getNIF();
+                }
+            }
+        }
+        return nifCamarero;
     }
     
     /**
