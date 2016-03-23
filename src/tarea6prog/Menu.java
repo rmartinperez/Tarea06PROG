@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jdk.nashorn.internal.ir.BreakNode;
 
 public class Menu {
 
@@ -24,6 +25,7 @@ public class Menu {
     static Camareros camarero = null;
     static Productos producto = new Productos();
     static ServicioMesa servMesa = new ServicioMesa();
+    static ConsumicionMesa consumicionMesa = new ConsumicionMesa();
 
     public static void main(String[] args) {
         BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
@@ -76,15 +78,15 @@ public class Menu {
                     listarProductos();
                     listarProductosCodBarras(consultarnombre(1));                    
                     break;
-                case 5: //Abrir Servicio Mesa
-                    entradaServivioMesa();
-                    
-                    break;
-                case 6: //Consumición Mesa
+                case 5: //Abrir Servicio Mesa          
+                   // entradaServivioMesa();
                     listarServicioMesa();
                     break;
+                case 6: //Consumición Mesa
+                    entradaConsumiciones();
+                    break;
                 case 7: //Total Cuenta de Mesa
-                    
+                    listarEntradaConsumiciones();
                     break;
                 case 8: //Listado de los servicios de una mesa por fechas
                     break;
@@ -97,23 +99,216 @@ public class Menu {
         } while (opcionElegida != 10);
 
     } //end void main
+    /**
+     * ****************************************************************************
+     *                          Consumiciones
+     * ****************************************************************************
+     */
+    public static void entradaConsumiciones(){
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
+        consumicionMesa = new ConsumicionMesa();
+        String cadena="";
+        int bandera = 0;
+        int numMesa = 0;
+        int cantidad = 0;
+        char respuesta = 0;
+ /* Solicitamos el número de mesa */
+        System.out.print("Introduce el número de mesa (1/12): ");
+        try {
+            //PASAR UN STRING A UN INT (DE CADENA A ENTERO)
+            numMesa = Integer.parseInt(entrada.readLine());
+            if ((numMesa > 0) && (numMesa <= 12)) {
+                
+                if (obtenerEstadoMesa(numMesa) != false) {
+                        consumicionMesa.setNumeroServicio(numMesa);
+                } else {
+                    bandera = 2; 
+                }
+            } else {
+                bandera = 1;
+            }
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }      
+    /* Solicitamos el cod barras del producto*/ 
+        System.out.print("Código de Barras del Producto: ");
+        try {
+            cadena = entrada.readLine();
+            //Validamos que recibimos algo
+            if (cadena.length() > 0) {
+                //Tengo que comprobar que el producto exite
+                if (comprobarProductoCodBarras(cadena) != "") {
+                    consumicionMesa.setCod_barra(cadena);
+                } else {
+                    bandera = 4;
+                }
+                
+            } else {
+                bandera = 3;
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    /* Solicitamos la cantidad del producto*/ 
+        System.out.print("Cantidad del Producto: ");
+        try {
+             //PASAR UN STRING A UN INT (DE CADENA A ENTERO)
+            cantidad = Integer.parseInt(entrada.readLine());
+            //Validamos que recibimos algo
+            if (cadena.length() > 0) {
+                    consumicionMesa.setUnidades(cantidad);
+            } else {
+                bandera = 5;
+            }
+            
+        } catch (NumberFormatException e) {
+                cantidad = 0;
+                consumicionMesa.setUnidades(cantidad);
+        } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } 
+    /* Sacamos el importe total de cada producto*/         
+        try {
+            // Creo una variable que recoja la cantidad de producto introducida en el paso anterior
+            int unidades = consumicionMesa.getUnidades();
+            //System.out.println("unidades: " + unidades);
+            if (unidades > 0) {
+                // Creo una variable que recoja el código de barras de producto introducido
+                String producto = consumicionMesa.getCod_barra();
+                //System.out.println("Producto: " + consumicionMesa.getCod_barra());
+                // Creo una variable que me recoja el precio del producro
+                // para ello necesito hacer una función que me obtenga el precio del producto a partir del cod de barras
+                float precio = obtenerPrecioProducto(producto);
+                //System.out.println("precio: " + precio);
+                // Creo una variable para sacar la multiplicación entre (int) unidades y (float) precio
+                float total = unidades * precio;
+                //System.out.println("Total: " + total);
+                // Recojo en el set el total
+                consumicionMesa.setTotal(total);
+            } else {
+                bandera = 5;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    // Grbamos los datos y Mensajes de la validaciones
+        if (bandera == 0) {
+            //Grabamos los datos
+            System.out.println("Grabar los Datos :");
+            try {
+                respuesta = entrada.readLine().charAt(0);
+                if (respuesta == 's' || respuesta == 'S') {
+                    escribeFichero(consumicionMesa, 3);
+                }
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        } else {
+            switch (bandera){
+                case 1:
+                    System.out.println("No existe la mesa");
+                    break;
+                case 2:
+                    System.out.println("El servicio/mesa no está abierto");
+                    break;                    
+                case 3:
+                    System.out.println("No existe el cod de barras");
+                    break;
+                case 4:
+                    System.out.println("No existe el producto");
+                    break;
+                case 5:
+                    System.out.println("No has introducido la cantidad del Producto");
+                    break;                    
+                default:
+                    break;
+            }
+        }
+    }
+    /**
+    * Funciones
+    */
+    public static String comprobarProductoCodBarras(String cadena){
+        String producto = "";
+        ArrayList<Productos> c = new ArrayList<Productos>();
+        //Productos producto = new Productos();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        if (archivo.CrearArchivoProductos()) {
+            c = archivo.LeerArchivoProductos();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getCod_barra().equals(cadena)) {
+                    producto = c.get(i).toString();
+                }
+            }
+        }
+        return producto;
+    }
+    
+    public static float obtenerPrecioProducto(String codProducto) { // Me tiene que devolver el precio del producto que le paso como parámetro
+        float precio = 0;
+        ArrayList<Productos> c = new ArrayList<Productos>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        if (archivo.CrearArchivoProductos()) {
+            c = archivo.LeerArchivoProductos();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getCod_barra().equals(codProducto)) {
+                    precio = c.get(i).getPvp();
+                }
+            }
+        }
+        return precio;
+    }
+    // Me tiene que devolver el estado de la mesa que le paso por parámetro
+    public static Boolean obtenerEstadoMesa(int numMesa){
+        boolean estado = false;
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getNumeroMesa() == numMesa) {
+                    estado = c.get(i).isAbierta();
+                }
+            }
+        } else {
+        }
+        return estado;
+    }
+    private static void listarEntradaConsumiciones() {
+
+        ArrayList<ConsumicionMesa> c = new ArrayList<ConsumicionMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        String cadena = "";
+        //Camareros camarero = new Camareros();
+        if (archivo.CrearArchivoConsumicionMesa()) {
+            c = archivo.LeerArchivoConsumicionMesa();
+            for (int i = 0; i < c.size(); i++) {
+                cadena = cadena + c.get(i).toString() + "\n";
+            }
+            System.out.println(cadena);
+        }
+    }    
     /**
      * ****************************************************************************
      *                          Camareros 
      * ****************************************************************************
      */
     public static void entradaCamarero() {
- BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
         String cadena = "";
         char respuesta = 0;
         int bandera = 0;
         camarero = new Camareros();
-        /* Solicitamos el nombre */
+    /* Solicitamos el nombre */
         System.out.print("Nombre: ");
 
         try {
-            cadena = (entrada.readLine());
+            cadena = entrada.readLine();
             if (cadena.length() > 0) {
                 camarero.setNombre(cadena);
             } else {
@@ -330,7 +525,7 @@ public class Menu {
         }
         return producto;
     }  
-     /* ****************************************************************************
+    /** ****************************************************************************
      *                              Servicio en mesa
      * ****************************************************************************
      */
@@ -471,7 +666,7 @@ public class Menu {
         }        
         return bandera;        
     }
-            public static String comprobarCamarerosDNI(String cadena) {
+    public static String comprobarCamarerosDNI(String cadena) {
         String nifCamarero = "";
         ArrayList<Camareros> c = new ArrayList<Camareros>();
         Archivo_Objetos archivo = new Archivo_Objetos();
@@ -487,7 +682,6 @@ public class Menu {
         }
         return nifCamarero;
     }
-    
     /**
      * ****************************************************************************
      *                              Funciones comunes 
@@ -516,6 +710,15 @@ public class Menu {
                 archivo.EscribirArchivoServicioMesa(nuevo);
             } else {
                 archivo.AñadirArchivoServicioMesa(nuevo);
+            }
+        }  else if (valor == 3){
+            abrir = archivo.CrearArchivoConsumicionMesa();
+            ConsumicionMesa nuevo = new ConsumicionMesa();
+            nuevo = (ConsumicionMesa) objeto;
+            if (abrir == false) {
+                archivo.EscribirArchivoConsumicionMesa(nuevo);
+            } else {
+                archivo.AñadirArchivoConsumicionMesa(nuevo);
             }
         } else {
             abrir = archivo.CrearArchivoProductos();

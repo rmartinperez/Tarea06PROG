@@ -24,7 +24,7 @@ public class ServicioMesa implements Serializable {
     int date = calendar.get(Calendar.DATE);
 
     private String fecha=  date + "/" + month + "/" + year;
-    private int numeroServicio;
+    private int numeroServicio; 
     private boolean abierta;
 
     public ServicioMesa() {

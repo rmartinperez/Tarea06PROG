@@ -159,8 +159,7 @@ public class Archivo_Objetos {
             e.printStackTrace();
         }
         return b;
-    }
-    
+    }  
     public void EscribirArchivoServicioMesa(ServicioMesa servicio){
         try {
             FileOutputStream fich = new FileOutputStream(f);
@@ -173,8 +172,7 @@ public class Archivo_Objetos {
         } catch (Exception ex){
             ex.printStackTrace();
         }
-    }
-    
+    }  
     public void AñadirArchivoServicioMesa(ServicioMesa servicio) {
         try{
             FileOutputStream fich=new FileOutputStream(f,true);
@@ -206,5 +204,66 @@ public class Archivo_Objetos {
             e2.printStackTrace();
         }
         return c;
-    }    
+    } 
+     /**
+     * ****************************************************************************
+     *                          Consumición Mesa 
+     * ****************************************************************************
+     */    
+    public boolean CrearArchivoConsumicionMesa(){
+        boolean b=false;
+        try {
+            f=new File("D:/Ejercicios_Java/Tarea6PROG/src/tarea6prog/consumicionmesa.txt");
+            if (f.exists())
+            b=true;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return b;
+    }  
+    public void EscribirArchivoConsumicionMesa(ConsumicionMesa consumicion){
+        try {
+            FileOutputStream fich = new FileOutputStream(f);
+            ObjectOutputStream oos=new ObjectOutputStream(fich);
+            oos.writeObject(consumicion);
+            oos.flush();
+            oos.close();
+            fich.close();
+            
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }  
+    public void AñadirArchivoConsumicionMesa(ConsumicionMesa consumicion) {
+        try{
+            FileOutputStream fich=new FileOutputStream(f,true);
+            MiObjectOutputStream oos = new MiObjectOutputStream(fich);
+            oos.writeUnshared(consumicion);
+            oos.flush();
+            oos.close();
+            fich.close();
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    public ArrayList<ConsumicionMesa> LeerArchivoConsumicionMesa() {
+        ArrayList<ConsumicionMesa> c = new ArrayList<ConsumicionMesa>();
+        try {
+            FileInputStream fich = new FileInputStream(f);
+            ObjectInputStream ois = new ObjectInputStream(fich);
+            ConsumicionMesa consuMesa = new ConsumicionMesa();
+            consuMesa = (ConsumicionMesa) ois.readObject();
+            while (consuMesa != null) {
+                c.add(consuMesa);
+                consuMesa = (ConsumicionMesa) ois.readObject();
+            }
+            ois.close();
+            fich.close();
+        } catch (EOFException e1) {
+// System.out.println ("Fin de fichero");
+        } catch (Exception e2) {
+            e2.printStackTrace();
+        }
+        return c;
+    } 
 }
