@@ -79,16 +79,19 @@ public class Menu {
                     listarProductosCodBarras(consultarnombre(1));                    
                     break;
                 case 5: //Abrir Servicio Mesa          
-                   // entradaServivioMesa();
+                    //entradaServivioMesa();
                     listarServicioMesa();
+                    //buscarUltimoServicioMesaNumero(3);
                     break;
                 case 6: //Consumición Mesa
                     entradaConsumiciones();
-                    break;
-                case 7: //Total Cuenta de Mesa
                     listarEntradaConsumiciones();
                     break;
+                case 7: //Total Cuenta de Mesa
+                    cerrarMesa();
+                    break;
                 case 8: //Listado de los servicios de una mesa por fechas
+                    entradaServivioMesa();
                     break;
                 case 9: //Listado de los servicios que ha hecho un camarero
                     break;
@@ -99,6 +102,65 @@ public class Menu {
         } while (opcionElegida != 10);
 
     } //end void main
+     /**
+     * ****************************************************************************
+     *                          La cuenta, por favor!!!
+     * ****************************************************************************
+     */
+    public static void cerrarMesa() { //Solicito el nº de mesa
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
+        
+        servMesa = new ServicioMesa();
+        System.out.print("Introduce el número de mesa (1/12): ");
+        try {
+            //PASAR UN STRING A UN INT (DE CADENA A ENTERO)
+            int numMesa = Integer.parseInt(entrada.readLine());
+            
+            if (obtenerEstadoMesa(numMesa)) { // Si la mesa está abierta
+                System.out.println(buscarConsumicionesMesa(numMesa));
+                cerrarMesaNumero(numMesa);
+                servMesa.setNumeroMesa(numMesa);       
+                escribeFichero(servMesa, 2);
+                
+            } else { // Si la mesa está cerrada
+                System.out.println("La mesa ya está cerra");
+            }
+         } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+    public static void cerrarMesaNumero(int numMesa){ 
+        
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getNumeroServicio() == numMesa) {
+                    c.get(i).setAbierta(false);
+                }
+                
+            }
+            //System.out.println(total);
+        }
+    }
+    public static double buscarConsumicionesMesa(int numMesa){ 
+        double total = 0.00;
+        ArrayList<ConsumicionMesa> c = new ArrayList<ConsumicionMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        if (archivo.CrearArchivoConsumicionMesa()) {
+            c = archivo.LeerArchivoConsumicionMesa();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getNumeroServicio() == numMesa) {
+                    total = total + c.get(i).getTotal();
+                }
+                
+            }
+            //System.out.println(total);
+        }
+        return total;
+    }
     /**
      * ****************************************************************************
      *                          Consumiciones
@@ -230,9 +292,6 @@ public class Menu {
             }
         }
     }
-    /**
-    * Funciones
-    */
     public static String comprobarProductoCodBarras(String cadena){
         String producto = "";
         ArrayList<Productos> c = new ArrayList<Productos>();
@@ -248,7 +307,6 @@ public class Menu {
         }
         return producto;
     }
-    
     public static float obtenerPrecioProducto(String codProducto) { // Me tiene que devolver el precio del producto que le paso como parámetro
         float precio = 0;
         ArrayList<Productos> c = new ArrayList<Productos>();
@@ -263,24 +321,7 @@ public class Menu {
         }
         return precio;
     }
-    // Me tiene que devolver el estado de la mesa que le paso por parámetro
-    public static Boolean obtenerEstadoMesa(int numMesa){
-        boolean estado = false;
-        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
-        Archivo_Objetos archivo = new Archivo_Objetos();
-        if (archivo.CrearArchivoServicioMesa()) {
-            c = archivo.LeerArchivoServicioMesa();
-            for (int i = 0; i < c.size(); i++) {
-                if (c.get(i).getNumeroMesa() == numMesa) {
-                    estado = c.get(i).isAbierta();
-                }
-            }
-        } else {
-        }
-        return estado;
-    }
     private static void listarEntradaConsumiciones() {
-
         ArrayList<ConsumicionMesa> c = new ArrayList<ConsumicionMesa>();
         Archivo_Objetos archivo = new Archivo_Objetos();
         String cadena = "";
@@ -560,14 +601,12 @@ public class Menu {
             cadena = Integer.parseInt(entrada.readLine());
             if ((cadena > 0) && (cadena <= 12)) {
                 //buscarServivioMesaNumeroServicio(cadena);
-                if (buscarUltimoServicioMesaNumero(cadena)>0) {
-                    System.out.println("Debes de dar de baja la mesa " + cadena + " en el servcio número: " + buscarUltimoServicioMesaNumero(cadena));
-                         bandera = 3;
+                if (obtenerEstadoMesa(cadena)) {
+                    bandera = 3;
                 } else {
                     servMesa.setNumeroMesa(cadena);
-                    servMesa.setAbierta(true);
+                    servMesa.setAbierta(true);                    
                 }
-              
 
             } else {
                 bandera = 2;
@@ -647,25 +686,6 @@ public class Menu {
             System.out.println(cadena);
         }
     }  //end listarServicioMesa()
-    public static int buscarUltimoServicioMesaNumero(int numMesa) {
-        int bandera = 0;
-        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
-        Archivo_Objetos archivo = new Archivo_Objetos();
-        ServicioMesa servicio = new ServicioMesa();
-        if (archivo.CrearArchivoServicioMesa()) {
-            c = archivo.LeerArchivoServicioMesa();
-            int contador = 0;
-            for (int i = 0; i < c.size(); i++) {
-                if ((c.get(i).getNumeroMesa() == numMesa) && (c.get(i).isAbierta()==true)){
-                        bandera=c.get(i).getNumeroServicio();
-                 }
-            }
-
-            //System.out.println("contador: " + bandera );
-           
-        }        
-        return bandera;        
-    }
     public static String comprobarCamarerosDNI(String cadena) {
         String nifCamarero = "";
         ArrayList<Camareros> c = new ArrayList<Camareros>();
@@ -751,6 +771,21 @@ public class Menu {
             e.printStackTrace();
         }
         return cadena;
+    }
+    public static Boolean obtenerEstadoMesa(int numMesa){ // Me tiene que devolver el estado de la mesa que le paso por parámetro
+        boolean estado = false;
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getNumeroMesa() == numMesa) {
+                    estado = c.get(i).isAbierta();
+                }
+            }
+        } else {
+        }
+        return estado;        
     }
 
 } //end class Menu
