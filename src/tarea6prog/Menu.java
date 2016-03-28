@@ -6,18 +6,27 @@
 package tarea6prog;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jdk.nashorn.internal.ir.BreakNode;
 
 public class Menu {
 
@@ -71,7 +80,7 @@ public class Menu {
                     listarCamarerosDNI(consultarnombre(2));
                     break;
                 case 3: //Entrada Productos
-                    entradaProducto();
+                    //entradaProducto();
                     listarProductos();
                     break;
                 case 4: //Consultar Productos
@@ -79,23 +88,29 @@ public class Menu {
                     listarProductosCodBarras(consultarnombre(1));                    
                     break;
                 case 5: //Abrir Servicio Mesa          
-                    //entradaServivioMesa();
-                    listarServicioMesa();
+                    entradaServivioMesa();
+                    
                     //buscarUltimoServicioMesaNumero(3);
                     break;
                 case 6: //Consumición Mesa
                     entradaConsumiciones();
-                    listarEntradaConsumiciones();
+                    //listarEntradaConsumiciones();
                     break;
                 case 7: //Total Cuenta de Mesa
                     cerrarMesa();
                     break;
                 case 8: //Listado de los servicios de una mesa por fechas
-                    entradaServivioMesa();
+                    listarServicioMesa();
+                    listarMesasCamarero();
                     break;
                 case 9: //Listado de los servicios que ha hecho un camarero
+                    listarServicioMesaxFecha();
+                   // eliminarLinea();
+
                     break;
                 case 10: //Salir
+                    
+                    //eliminarLinea();
                     break;
                 default:
             }// end. switch
@@ -111,39 +126,68 @@ public class Menu {
         BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
         
         servMesa = new ServicioMesa();
-        System.out.print("Introduce el número de mesa (1/12): ");
+        
         try {
+            System.out.print("Introduce el número de mesa (1/12): ");
             //PASAR UN STRING A UN INT (DE CADENA A ENTERO)
             int numMesa = Integer.parseInt(entrada.readLine());
+            System.out.print("y ahora el servicio: ");
+            int numServicio= Integer.parseInt(entrada.readLine());
             
-            if (obtenerEstadoMesa(numMesa)) { // Si la mesa está abierta
+            if (obtenerEstadoMesa(numMesa))  { // Si la mesa está abierta
                 System.out.println(buscarConsumicionesMesa(numMesa));
-                cerrarMesaNumero(numMesa);
+                modificaEstadoMesa(numServicio,numMesa);
                 servMesa.setNumeroMesa(numMesa);       
                 escribeFichero(servMesa, 2);
                 
             } else { // Si la mesa está cerrada
-                System.out.println("La mesa ya está cerra");
+                System.out.println("La mesa ya está cerrada");
             }
          } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-    public static void cerrarMesaNumero(int numMesa){ 
-        
+    public static void modificaEstadoMesa(int numServicio, int numMesa) {
         ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        ArrayList<ServicioMesa> c1 = new ArrayList<ServicioMesa>();
+
+
         Archivo_Objetos archivo = new Archivo_Objetos();
+            try {
         if (archivo.CrearArchivoServicioMesa()) {
             c = archivo.LeerArchivoServicioMesa();
-            for (int i = 0; i < c.size(); i++) {
-                if (c.get(i).getNumeroServicio() == numMesa) {
-                    c.get(i).setAbierta(false);
-                }
+            String[] miarray = new String[c.size()];
+               miarray = c.toArray(miarray);
                 
-            }
-            //System.out.println(total);
+      
+            for(String s : miarray)
+
+            System.out.println(s);
+
+         /*   for (int i = 0; i < c.size(); i++) {
+                
+
+                if ((c.get(i).getNumeroServicio() == numServicio) && (c.get(i).getNumeroMesa() == numMesa)) {
+                   //c.get(i).setAbierta(false);
+                    //c.get(i).setNumeroMesa(numMesa);
+                    //servMesa.setAbierta(false);
+                    //servMesa = c.get(i);
+                    servMesa.getNif();
+                    servMesa.getNumeroMesa();
+                    servMesa.getNumeroServicio();
+                    System.out.println(c.get(i));
+                    System.out.println("Posición: " + i);
+                    
+                    //escribeFichero(servMesa, 2);
+                    //System.out.println(servMesa.getNif());
+                    //System.out.println(servMesa);
+
+                }
+            }*/
         }
+            } catch (Exception e) {
+            }
     }
     public static double buscarConsumicionesMesa(int numMesa){ 
         double total = 0.00;
@@ -160,6 +204,85 @@ public class Menu {
             //System.out.println(total);
         }
         return total;
+    }
+    
+    public static void eliminarLinea(){  //String archivoToEliminar
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
+        servMesa = new ServicioMesa();
+        int numServicio=0;
+         int numMesa=0;
+        int bandera = 0;
+        char respuesta = 0;
+        String nifCamarero = "";
+        /* Solicitamos el nombre */
+        System.out.print("Introduce el número de servicio: ");
+
+        try {
+            numServicio = Integer.parseInt(entrada.readLine());
+            if (numServicio > 0) {
+               servMesa.setNumeroServicio(numServicio);                
+            } else {
+                bandera = 1;
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+/* Solicitamos el número de mesa */
+        System.out.print("Introduce el número de mesa (1/12): ");
+
+        try {
+            //PASAR UN STRING A UN INT (DE CADENA A ENTERO)
+            numMesa = Integer.parseInt(entrada.readLine());
+            if ((numMesa > 0) && (numMesa <= 12)) {
+                //buscarServivioMesaNumeroServicio(cadena);
+                servMesa.setNumeroMesa(numMesa);
+
+            } else {
+                bandera = 2;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+/* Solicitamos el NIF camarero */
+        System.out.print("Introduce el NIF del camarero: ");
+
+        try {
+            
+            nifCamarero = entrada.readLine();
+            if (nifCamarero != "") {
+                //buscarServivioMesaNumeroServicio(cadena);
+                if (comprobarCamarerosDNI(nifCamarero) != "") {
+                     servMesa.setNif(nifCamarero);
+                     servMesa.setAbierta(true);
+                } else {
+                    bandera = 4;
+                }
+             } else {
+                bandera = 4;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }              
+        System.out.println(servMesa.equals(servMesa));
+        
+        //obtenerServicioMesa(numServicio, numMesa);
+     /* String cadena = obtenerServicioMesa(numServicio, numMesa);
+        System.out.println(obtenerServicioMesa(numServicio, numMesa));*/
+      String archivo = "D:/Ejercicios_Java/Tarea6PROG/src/tarea6prog/serviciomesa.txt";  
+        try {
+            Archivo_Objetos c = new Archivo_Objetos();
+            c.removeLineFromFile(archivo, servMesa);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+      
+       
+ 
     }
     /**
      * ****************************************************************************
@@ -442,6 +565,86 @@ public class Menu {
             System.out.println(cadena);
         }
     }
+    private static void listarMesasCamarero() {
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
+        String cadena = "";
+        String nif = "";
+        int bandera = 0;
+        String fecha = "";        
+        String datoFecha = ""; 
+
+        try {
+        /* Solicitamos el nombre */
+        System.out.print("NIF: ");
+            cadena = entrada.readLine();
+            if (cadena.length() > 0) {
+                nif = cadena;
+            } else {
+                bandera = 1;
+            }
+       System.out.print("Introduce la fecha inicial (dd/mm/aaaa): ");
+            datoFecha = entrada.readLine();
+            DateFormat formatoDelTexto = DateFormat.getDateInstance(DateFormat.SHORT);
+                try {
+            if (datoFecha != "") {
+                //System.out.println("Estoy aqyí");
+                Date date1 = formatoDelTexto.parse(datoFecha);
+                Calendar cal1 = new GregorianCalendar();
+                cal1.setTime(date1);
+                //System.out.println("Fecha Inicial: " + formatoDelTexto.format(cal1.getTime()));
+                  ObtenerMesaDeCamareroPorFecha(nif,date1);
+                  
+            } else {
+                bandera = 1;
+            }
+                } catch (Exception e) {
+                    System.out.println("El formato de fecha no es correcto");
+                }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (bandera == 0) {
+                
+        } else {
+            switch (bandera) {
+                case 1:
+                    System.out.println("Entradas incorrecta del NIF");
+                    break;
+                case 2:
+                    System.out.println("Entradas incorrecta de la fecha");
+                    break;                    
+            }
+        }// end.if(bandera==0)
+    }
+     public static int ObtenerMesaDeCamareroPorFecha(String nifCamarero, Date fecha){
+        int totalMesas = 0;
+        DateFormat formatoDelTexto = DateFormat.getDateInstance(DateFormat.SHORT);
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        ServicioMesa serviMesa = new ServicioMesa();
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+                Date date1;
+                try {
+                    date1 = formatoDelTexto.parse(c.get(i).getFecha());
+                    //System.out.println("Nis camarero obtenido: " + c.get(i).getNif());
+                   // System.out.println("Nis camarero psado por parámetro: " + c.get(i).getNif());
+                   // System.out.println("Fecha parámetro:" + fecha);
+                   // System.out.println("Fecha obtenida:" + date1);
+                     if ((c.get(i).getNif().equals(nifCamarero) && fecha.equals(date1))) {
+                    //System.out.println(c.get(i).toString());
+                    totalMesas++;
+                }
+                } catch (ParseException ex) {
+                    Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+                    System.out.println("Total de las mesas que ha servido el camarero solicitado es: " +totalMesas );
+        }
+        return totalMesas;
+     }
     /**
      * ****************************************************************************
      *                              Productos 
@@ -566,6 +769,7 @@ public class Menu {
         }
         return producto;
     }  
+    
     /** ****************************************************************************
      *                              Servicio en mesa
      * ****************************************************************************
@@ -576,6 +780,7 @@ public class Menu {
         int cadena = 0;
         char respuesta = 0;
         int bandera = 0;
+        String fecha = "";
         servMesa = new ServicioMesa();
 /* Solicitamos el nombre */
         System.out.print("Introduce el número de servicio: ");
@@ -621,6 +826,23 @@ public class Menu {
         if (cadena > 0) {
             servMesa.getFecha();
         } 
+    /*  System.out.print("Introduce la fecha(dd/mm/aaa): ");
+      
+       try {
+            //PASAR UN STRING A UN INT (DE CADENA A ENTERO)
+            fecha = entrada.readLine();
+            if (fecha != "")  {
+ 
+                    servMesa.setFecha(fecha);
+   
+            } else {
+                bandera = 5;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+      */
 /* Solicitamos el NIF camarero */
         System.out.print("Introduce el NIF del camarero: ");
 
@@ -686,6 +908,24 @@ public class Menu {
             System.out.println(cadena);
         }
     }  //end listarServicioMesa()
+    private static String obtenerServicioMesa(int numServicio, int numMesa) {
+
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        ServicioMesa serviMesa = new ServicioMesa();
+        String cadena = "";
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+                if ((c.get(i).getNumeroServicio() == numServicio) && (c.get(i).getNumeroMesa()== numMesa)){
+                cadena = cadena + c.get(i).toString();
+               // System.out.println(((Object)cadena).getClass().getName());
+                }
+            }
+            //System.out.println(cadena);
+        }
+        return cadena;
+    }  //end listarServicioMesa()
     public static String comprobarCamarerosDNI(String cadena) {
         String nifCamarero = "";
         ArrayList<Camareros> c = new ArrayList<Camareros>();
@@ -702,6 +942,77 @@ public class Menu {
         }
         return nifCamarero;
     }
+
+    private static void listarServicioMesaxFecha() {
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
+        servMesa = new ServicioMesa();
+         Archivo_Objetos archivo = new Archivo_Objetos();
+        int cadena = 0;
+        int numMesa = 0;
+        String fechaIni = "";
+        String fechaFin = "";
+        int bandera = 0;
+        /* Solicitamos la fecha inicial */
+        try {
+         System.out.print("Introduce el número de mesa: ");
+            cadena = Integer.parseInt(entrada.readLine());
+            if ((cadena > 0) && (cadena <= 12)) {
+                numMesa = cadena;
+            } else {
+                 System.out.print("No existe la mesa: ");
+            }
+        System.out.print("Introduce la fecha inicial (dd/mm/aaaa): ");
+            fechaIni = entrada.readLine();
+        System.out.print("Introduce la fecha final (dd/mm/aaaa): ");
+            fechaFin = entrada.readLine();
+            DateFormat formatoDelTexto = DateFormat.getDateInstance(DateFormat.SHORT);
+                try {
+            if ((fechaIni != "") && (fechaFin != "")) {
+                //System.out.println("Estoy aqyí");
+                Date date1 = formatoDelTexto.parse(fechaIni);
+                Date date2 = formatoDelTexto.parse(fechaFin);
+                Calendar cal1 = new GregorianCalendar();
+                cal1.setTime(date1);
+                //System.out.println("Fecha Inicial: " + formatoDelTexto.format(cal1.getTime()));
+                  ObtenerServiciosDeMesas(numMesa,date1,date2);
+                  
+            } else {
+                bandera = 1;
+            }
+                } catch (Exception e) {
+                    System.out.println("El formato de fecha no es correcto");
+                }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+    }  //end listarServicioMesaxFecha()
+    public static int ObtenerServiciosDeMesas(int NumMesa, Date fechaIni, Date fechaFin) {
+        int totalServicios = 0;
+        DateFormat formatoDelTexto = DateFormat.getDateInstance(DateFormat.SHORT);
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        ServicioMesa serviMesa = new ServicioMesa();
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+                Date date1;
+                try {
+                    date1 = formatoDelTexto.parse(c.get(i).getFecha());               
+                     if ((c.get(i).getNumeroMesa()==NumMesa && fechaIni.before(date1) && fechaFin.after(date1))) {
+                    //System.out.println(c.get(i).toString());
+                    totalServicios++;
+                }
+                } catch (ParseException ex) {
+                    Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+                    System.out.println("Total de los servicios de la mesa nº " + NumMesa + ": " +totalServicios );
+        }
+        return totalServicios;
+    } 
     /**
      * ****************************************************************************
      *                              Funciones comunes 
@@ -787,5 +1098,59 @@ public class Menu {
         }
         return estado;        
     }
+    public static ServicioMesa obtenerNumeroServicio (int numMesa){ // Me devuelve el numero de servicio a partir del numero de mesa
+         int numServicio = 0;
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        ServicioMesa mesa = new ServicioMesa();
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+               if (c.get(i).getNumeroMesa() == numMesa) {
+                   // Si imprimo esta línea sacaría todos los números de servicio que tiene la mesa que paso por parámetro
+                    //System.out.println(c.get(i).getNumeroServicio()); 
+                    numServicio = c.get(i).getNumeroServicio();
+                    
+                }
+            }
+            //Al imprimirlo fuera del for sólo obtengo el último servicio que tiene la mesa que paso por parámetro
+            System.out.println(numServicio);
+            modificaEstadoMesa(numServicio, numMesa);
+            
+        } else {
+        }
+        return mesa;        
+    }
+    
+    
+    
+       /* public static void eliminaServicioMesa() {
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            System.out.print("Introduce el número de mesa (1/12): ");
+            //PASAR UN STRING A UN INT (DE CADENA A ENTERO)
+            int numMesa = Integer.parseInt(entrada.readLine());
+            System.out.print("y ahora el servicio: ");
+            int numServicio = Integer.parseInt(entrada.readLine());
 
+            ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+            //servMesa = new ServicioMesa();
+            Archivo_Objetos archivo = new Archivo_Objetos();
+            if (archivo.CrearArchivoServicioMesa()) {
+                c = archivo.LeerArchivoServicioMesa();
+
+                for (int i = 0; i < c.size(); i++) {
+
+                    if ((c.get(i).getNumeroServicio() == numServicio) && (c.get(i).getNumeroMesa() == numMesa)) {
+                            System.out.println(c.get(i));
+                        archivo.borrar_ServicioMesa(c);
+
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }*/
 } //end class Menu
