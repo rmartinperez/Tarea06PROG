@@ -13,6 +13,10 @@ import java.util.Calendar;
  * @author Rmartin
  */
 public class ServicioMesa implements Serializable {
+
+    //private static final long serialVersionUID = 1L;
+
+      
     private int numeroMesa;
     private String nif;
     
@@ -30,11 +34,12 @@ public class ServicioMesa implements Serializable {
     public ServicioMesa() {
     }
 
-    public ServicioMesa(int numeroMesa, String nif, int numeroServicio, boolean abierta) {
+    public ServicioMesa(int numeroMesa, String nif, int numeroServicio, boolean abierta, String fecha) {
         this.numeroMesa = numeroMesa;
         this.nif = nif;
         this.numeroServicio = numeroServicio;
         this.abierta = abierta;
+        this.fecha = fecha;
     }
 
     public int getNumeroMesa() {

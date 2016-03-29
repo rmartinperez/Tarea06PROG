@@ -15,9 +15,9 @@ import java.io.*;
 public class Camareros implements Serializable{
     //Variables miembro
     String NIF;
-    String Nombre;
-    String Teléfono;
-    String Dirección;
+    String nombre;
+    String telefono;
+    String direccion;
     
     // Instanciamos el objeto Calendar
     Calendar calendar = Calendar.getInstance();
@@ -38,12 +38,11 @@ public class Camareros implements Serializable{
     public Camareros() {
     }
     
-    public Camareros(String NIF, String Nombre, String Teléfono, String Dirección, String fechaAlta) {
+    public Camareros(String NIF, String nombre, String telefono, String direccion) {
         this.NIF = NIF;
-        this.Nombre = Nombre;
-        this.Teléfono = Teléfono;
-        this.Dirección = Dirección;
-        this.fechaAlta = fechaAlta;
+        this.nombre = nombre;
+        this.telefono = telefono;
+        this.direccion = direccion;
     }
 
     public String getNIF() {
@@ -55,27 +54,27 @@ public class Camareros implements Serializable{
     }
 
     public String getNombre() {
-        return Nombre;
+        return nombre;
     }
 
-    public void setNombre(String Nombre) {
-        this.Nombre = Nombre;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public String getTeléfono() {
-        return Teléfono;
+    public String getTelefono() {
+        return telefono;
     }
 
-    public void setTeléfono(String Teléfono) {
-        this.Teléfono = Teléfono;
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
-    public String getDirección() {
-        return Dirección;
+    public String getDireccion() {
+        return direccion;
     }
 
-    public void setDirección(String Dirección) {
-        this.Dirección = Dirección;
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public String getFechaAlta() {
@@ -120,8 +119,8 @@ public class Camareros implements Serializable{
 
     @Override
     public String toString() {
-        return "Camareros{" + "NIF=" + NIF + ", Nombre=" + Nombre + ", Tel\u00e9fono=" 
-                + Teléfono + ", Direcci\u00f3n=" + Dirección + ", fechaAlta=" + fechaAlta 
+        return "Camareros{" + "NIF=" + NIF + ", nombre=" + nombre + ", Tel\u00e9fono=" 
+                + telefono + ", Direcci\u00f3n=" + direccion + ", fechaAlta=" + fechaAlta 
                 + '}';
     }
 
