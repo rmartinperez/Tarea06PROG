@@ -36,17 +36,20 @@ public class Archivo_Objetos {
         try {
             if (!ficheroCamareros.exists()) {
                 crearArchivoCamarero();
-            } else if (ficheroCamareros.canRead()) {
-                FileInputStream fis= new FileInputStream(ficheroCamareros);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                camarerosArrayList = (ArrayList<Camareros>)ois.readObject();
-                ois.close();
-                fis.close();
             } else {
-                System.err.println("Fichero vacío");
+                if (ficheroCamareros.canRead()) {
+                    FileInputStream fis= new FileInputStream(ficheroCamareros);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    camarerosArrayList = (ArrayList<Camareros>)ois.readObject();
+                    ois.close();
+                    fis.close();
+            } 
             }
-        } catch (IOException | ClassNotFoundException ex) {
-            System.err.println("Error: "+ex.getMessage());
+        } catch (ClassNotFoundException ex) {
+            System.err.println("Error al leer objetos: " + ex);
+            
+        }catch (IOException ex) {
+            System.err.println("Fichero vacío");
         }
     } // end.abrirArchivoCamareros()
     public void crearArchivoCamarero(){
@@ -84,7 +87,7 @@ public class Archivo_Objetos {
     } // end.anadirArchivoCamarero()   
     public void listarCamareros(){
         if (!ficheroCamareros.exists()) {
-            System.err.println("NO EXISTEN DATOS");
+            System.err.println("NO HAY FICHERO CREADO DE CAMAREROS");
         } else {
             
            abrirArchivoCamareros();
@@ -98,7 +101,7 @@ public class Archivo_Objetos {
             }
         }
     } // end.listarCamareros()  
-    public void eliminarCamarero(){
+    public void leerArchivoCamarero(){
         
     }
     /**

@@ -141,33 +141,5 @@ public class Menu {
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }  
-    }
-    public static void buscarCamareroDNI(){
-        try {
-            String buscar;
-            System.out.println("Introduce el nif del camarero");
-            String nif = entrada.readLine();
-            archivo.abrirArchivoCamareros();
-            int contador = 0;
-            boolean encontrado = false;
-            for (Camareros camareros1 : camarerosArrayList) {
-                if (camareros1.getNIF().equals(nif)) {
-                    encontrado = true;
-                    System.out.println("Registro nº " + contador + " - " + camareros1.toString());
-                }
-                contador++;
-            }
-            if (encontrado) {
-                System.err.println("EL CAMARERO NO EXITE");
-            }
-            
-        } catch (Exception ex) {
-           System.out.println("Error: "+ex.getMessage());
-        }
-        
-    }
-    public void eliminarCamarero(){
-        
-    }
-       
+    }     
 } //end class Menu
