@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tarea6prog;
+package tarea6prog_BIS;
 
 import java.io.File; // Librería para trabajar con ficheros
 import java.io.FileInputStream; //Librería para crear el flujo hacia el fichero
@@ -31,35 +31,22 @@ public class Archivo_Objetos {
      * ****************************************************************************
      *                          Camareros 
      * ****************************************************************************
-     */    
-    public void abrirArchivoCamareros() { // si lo pongo como public static void no podría leer esta función en el archivo Menu. 
+     */ 
+    public boolean crearArchivoCamarero(){
+        boolean b=false;
         try {
-            if (!ficheroCamareros.exists()) {
-                crearArchivoCamarero();
+            if (ficheroCamareros.exists()) {
+                b = true;
             } else {
-                if (ficheroCamareros.canRead()) {
-                    FileInputStream fis= new FileInputStream(ficheroCamareros);
-                    ObjectInputStream ois = new ObjectInputStream(fis);
-                    camarerosArrayList = (ArrayList<Camareros>)ois.readObject();
-                    ois.close();
-                    fis.close();
-            } 
+                ficheroCamareros.createNewFile();
+                System.out.println("Fichero Creado");
+                b=true;
             }
-        } catch (ClassNotFoundException ex) {
-            System.err.println("Error al leer objetos: " + ex);
-            
-        }catch (IOException ex) {
-            System.err.println("Fichero vacío");
-        }
-    } // end.abrirArchivoCamareros()
-    public void crearArchivoCamarero(){
-        try {
-            ficheroCamareros.createNewFile();
-            System.out.println("Fichero Creado");
         } catch (Exception ex) {
             System.err.println("ERROR: " + ex.getMessage());
         } 
-    } // end.crearArchivoCamarero() 
+        return b;
+    } // end.crearArchivoCamarero()  
     public void escribirArchivoCamarero(List<Camareros> camarerosArrayList){
         try {
             if(!ficheroCamareros.exists()) ficheroCamareros=new File("camareros.txt");
@@ -74,36 +61,36 @@ public class Archivo_Objetos {
     } // end.escribirArchivoCamarero()
     public void anadirArchivoCamarero(){
         try {
-            FileOutputStream fich = new FileOutputStream(ficheroCamareros, true);
-            ObjectOutputStream oos = new ObjectOutputStream(fich);
+            if(!ficheroCamareros.exists()) ficheroCamareros=new File("camareros.txt");
+            FileOutputStream fos = new FileOutputStream(ficheroCamareros);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(camarerosArrayList);
-            oos.flush();
             oos.close();
-            fich.close();
-            
+            fos.close();  
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
-    } // end.anadirArchivoCamarero()   
-    public void listarCamareros(){
-        if (!ficheroCamareros.exists()) {
-            System.err.println("NO HAY FICHERO CREADO DE CAMAREROS");
-        } else {
-            
-           abrirArchivoCamareros();
-            if (camarerosArrayList !=null) {
-                int contador = 1;
-                for (Camareros variableCamarero : camarerosArrayList) {
-                    System.out.println("Registro nº " + contador + " - "+ variableCamarero.toString());
-                    contador++; //incrementamos el contador
-                }
+    } // end.escribirArchivoCamarero()    
+    public List<Camareros> leerArchivoCamareros() {
+        try {
+            if (ficheroCamareros.canRead()) {
+                FileInputStream fis = new FileInputStream(ficheroCamareros);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                camarerosArrayList = (ArrayList<Camareros>) ois.readObject();
+                ois.close();
+                fis.close();
+
             } else {
+                System.err.println("No hay fichero");
             }
+        } catch (ClassNotFoundException ex) {
+            System.err.println("Error al leer objetos: " + ex);
+
+        } catch (IOException ex) {
+            System.err.println("Fichero vacío");
         }
-    } // end.listarCamareros()  
-    public void leerArchivoCamarero(){
-        
-    }
+        return camarerosArrayList;
+    } // end.leerArchivoCamareros()
     /**
      * ****************************************************************************
      *                          Productos 

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tarea6prog;
+package tarea6prog_BIS;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -59,19 +59,19 @@ public class Menu {
 
             switch (opcionElegida) {
                 case 1: //Entrada Camareros 
-                    registroCamareros();                    
-
+                        registroCamareros();                    
                     break;
                 case 2: //Consultar Camareros
-                    //buscarCamareroDNI();
-                    archivo.listarCamareros();
-  
-                    break;
+                        //archivo.listarCamareros();
+                        listarCamareros();
+                        //buscarCamarero();
+                        //eliminarCamarero();
+                        //modificarDireccionCamarero();
+                     break;
                 case 3: //Entrada Productos
   
                     break;
                 case 4: //Consultar Productos
-                
                     break;
                 case 5: //Abrir Servicio Mesa          
 
@@ -101,12 +101,12 @@ public class Menu {
      *                          Camareros 
      * ****************************************************************************
      */
-    public static  void registroCamareros(){
+    public static void registroCamareros(){
         try {
             String nif, nombre,telefono,direccion,fecha;
             boolean abrir=true;
 
-            archivo.abrirArchivoCamareros();
+            archivo.leerArchivoCamareros();
             
             
             System.out.print("Introduzca el NIF: ");
@@ -126,7 +126,7 @@ public class Menu {
             Camareros c = new Camareros(nif, nombre, telefono, direccion);
             
             camarerosArrayList.add(c);
-             archivo.escribirArchivoCamarero(camarerosArrayList);
+            archivo.escribirArchivoCamarero(camarerosArrayList);
 
             //Menu.escribirArchivoCamarero();
             
@@ -141,5 +141,80 @@ public class Menu {
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }  
-    }     
+    }   // end.registroCamareros()  
+    public static void listarCamareros() {         
+       // archivo.crearArchivoCamarero();
+        //System.out.println("archivo.crearArchivoCamarero(); " + archivo.crearArchivoCamarero());
+        if (archivo.crearArchivoCamarero()) {
+            camarerosArrayList = archivo.leerArchivoCamareros();
+            int contador = 1;
+            for (Camareros variableCamarero : camarerosArrayList) {
+                System.out.println("Registro nº " + contador + " - " + variableCamarero.toString());
+                contador++; //incrementamos el contador
+            }
+        }
+    } // end.listarCamareros()
+    public static void buscarCamarero() {
+        try {
+            System.out.print("Introduzca el NIF: ");
+            String nif = entrada.readLine();
+
+            archivo.leerArchivoCamareros();
+            //System.out.println("camarerosArrayList: " + camarerosArrayList);
+            if (archivo.leerArchivoCamareros() != null) {
+                camarerosArrayList = archivo.leerArchivoCamareros();
+                int contador = 1;
+                for (Camareros variableCamarero : camarerosArrayList) {
+                    if (variableCamarero.getNIF().equals(nif)) {
+                        System.out.println("Registro nº " + contador + " - " + variableCamarero.getNombre().toString());
+                    }
+                    contador++; //incrementamos el contador
+                }
+            }
+        } catch (Exception e) {
+        }
+    } // end.buscarCamarero()
+    public static void eliminarCamarero() {
+        try {
+            System.out.print("Introduzca el NIF del camarero que quieres borrar: ");
+            String nif = entrada.readLine();
+
+            if (archivo.leerArchivoCamareros() != null) {
+                camarerosArrayList = archivo.leerArchivoCamareros();
+                int contador = 1;
+                for (Camareros variableCamarero : camarerosArrayList) {
+                    if (variableCamarero.getNIF().equals(nif)) {
+                        camarerosArrayList.remove(contador-1);
+                        archivo.anadirArchivoCamarero();
+                    }
+                    contador++; //incrementamos el contador
+                }
+            }
+        } catch (Exception e) {
+        }
+    } // end.eliminarCamarero()
+    public static void modificarDireccionCamarero(){
+        try {
+            System.out.print("Introduzca el NIF del camarero para modificar su dirección: ");
+            String nif = entrada.readLine();
+
+            archivo.leerArchivoCamareros();
+            //System.out.println("camarerosArrayList: " + camarerosArrayList);
+            if (archivo.leerArchivoCamareros() != null) {
+                camarerosArrayList = archivo.leerArchivoCamareros();
+                int contador = 1;
+                for (Camareros variableCamarero : camarerosArrayList) {
+                    if (variableCamarero.getNIF().equals(nif)) {
+                        System.out.print("Introduce la nueva dirección: ");
+                        String nuevaDireccion = entrada.readLine();
+                        variableCamarero.setDireccion(nuevaDireccion);
+                        archivo.anadirArchivoCamarero();
+                        System.out.println(variableCamarero.getNombre().toString() + " fué modificado.");
+                    }
+                    contador++; //incrementamos el contador
+                }
+            }
+        } catch (Exception e) {
+        }        
+    }
 } //end class Menu

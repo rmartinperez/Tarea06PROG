@@ -5,6 +5,7 @@
  */
 package tarea6prog;
 
+import tarea6prog_BIS.ServicioMesa;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

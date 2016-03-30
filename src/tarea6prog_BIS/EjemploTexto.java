@@ -5,7 +5,7 @@
  */
 
 // http://pacholalala.blogspot.com.es/2009/09/eliminar-una-linea-de-un-archivo-de.html
-package tarea6prog;
+package tarea6prog_BIS;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
