@@ -203,5 +203,145 @@ public class Archivo_Objetos {
             ex.printStackTrace();
         }
     }  
-    
+/** ***************************************************************************
+ *                           SERVICIO MESA
+ ******************************************************************************/     
+    public boolean CrearArchivoServicioMesa(){
+        boolean b=false;
+        try {
+            f=new File("tarea6prog_serviciomesa.txt");
+            if (f.exists())
+            b=true;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return b;
+    }
+    public void EscribirArchivoServicioMesa(ServicioMesa serv){
+        try {
+            FileOutputStream fich = new FileOutputStream(f);
+            ObjectOutputStream oos=new ObjectOutputStream(fich);
+            oos.writeObject(serv);
+            oos.flush();
+            oos.close();
+            fich.close();
+            
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    public void AnadirArchivoServicioMesa(ServicioMesa serv) {
+        try{
+            FileOutputStream fich=new FileOutputStream(f,true);
+            MiObjectOutputStream oos = new MiObjectOutputStream(fich);
+            oos.writeUnshared(serv);
+            oos.flush();
+            oos.close();
+            fich.close();
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    public ArrayList<ServicioMesa> LeerArchivoServicioMesa() {
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        try {
+            FileInputStream fich = new FileInputStream(f);
+            ObjectInputStream ois = new ObjectInputStream(fich);
+            ServicioMesa serv = new ServicioMesa();
+            serv = (ServicioMesa) ois.readObject();
+            while (serv != null) {
+                c.add(serv);
+                serv = (ServicioMesa) ois.readObject();
+            }
+            ois.close();
+            fich.close();
+        } catch (EOFException e1) {
+// System.out.println ("Fin de fichero");
+        } catch (Exception e2) {
+            e2.printStackTrace();
+        }
+        return c;
+    }  
+    public void ModificaArchivoServicioMesa(ArrayList servcioMesa, int pos){ // pos es la posición el array list
+        FileOutputStream fos = null;
+        ObjectOutputStream salida=null;
+        LeerArchivoServicioMesa();
+        try {          
+            //Se crea la comunicación con el fichero
+            fos = new FileOutputStream(f);
+            salida = new ObjectOutputStream(fos);
+            
+            for (int i = 0; i < servcioMesa.size(); i++) {
+                salida.writeObject(servcioMesa.get(i));
+             }
+            //Los recursos asignados al OutputStream se liberan con el método close(). Este método, además, garantiza que los datos que hayamos escrito en el flujo pero que aun no hayan sido enviados (a un archivo, por ejemplo) se manden a su destino. En los casos en que queramos asegurarnos de que los datos han sido enviados, pero no queramos cerrar el flujo, podemos usar el método flush(), que vacía los buffers de salida.
+            fos.flush();
+            //se cierra la comunicación con el fichero
+            fos.close();
+            //se cierra la salida de datos hacia el fichero
+            salida.close();
+              
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+/** ***************************************************************************
+ *                           CONSUMICIÓN MESA
+ ******************************************************************************/     
+    public boolean CrearArchivoConsumicionMesa(){
+        boolean b=false;
+        try {
+            f=new File("tarea6prog_consumicionmesa.txt");
+            if (f.exists())
+            b=true;
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return b;
+    }
+    public void EscribirArchivoConsumicionMesa(ConsumicionMesa con){
+        try {
+            FileOutputStream fich = new FileOutputStream(f);
+            ObjectOutputStream oos=new ObjectOutputStream(fich);
+            oos.writeObject(con);
+            oos.flush();
+            oos.close();
+            fich.close();
+            
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    public void AnadirArchivoConsumicionMesa(ConsumicionMesa con) {
+        try{
+            FileOutputStream fich=new FileOutputStream(f,true);
+            MiObjectOutputStream oos = new MiObjectOutputStream(fich);
+            oos.writeUnshared(con);
+            oos.flush();
+            oos.close();
+            fich.close();
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    public ArrayList<ConsumicionMesa> LeerArchivoConsumicionMesa() {
+        ArrayList<ConsumicionMesa> c = new ArrayList<ConsumicionMesa>();
+        try {
+            FileInputStream fich = new FileInputStream(f);
+            ObjectInputStream ois = new ObjectInputStream(fich);
+            ConsumicionMesa con = new ConsumicionMesa();
+            con = (ConsumicionMesa) ois.readObject();
+            while (con != null) {
+                c.add(con);
+                con = (ConsumicionMesa) ois.readObject();
+            }
+            ois.close();
+            fich.close();
+        } catch (EOFException e1) {
+// System.out.println ("Fin de fichero");
+        } catch (Exception e2) {
+            e2.printStackTrace();
+        }
+        return c;
+    }     
 }

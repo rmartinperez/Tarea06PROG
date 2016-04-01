@@ -23,8 +23,11 @@ public class Menu {
     public static BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
     public static Camareros camarero = new Camareros();
     public static Productos producto = new Productos();
+    public static ServicioMesa servicioMesa = new ServicioMesa();
+    public static ConsumicionMesa consumicion = new ConsumicionMesa();
     public static Archivo_Objetos archivo = new Archivo_Objetos();
     public static ArrayList<Productos> c = new ArrayList<Productos>();
+    public static ArrayList<ServicioMesa> c1 = new ArrayList<ServicioMesa>();
     
 
     public static void main(String[] args) {
@@ -104,11 +107,28 @@ public class Menu {
                     } while (opcion!=4);
                     break;
                 case 5: //Abrir Servicio Mesa
-                    
+                    //abrirServicioMesa();
+                    try {
+                        boolean repetir=false;
+                        System.err.print("QUIERES AÑADIR UN NUEVO SERVICIO");
+                        String respuesta = entrada.readLine().toUpperCase();
+                        do{
+                             if(respuesta.equals("S")){
+                                abrirServicioMesa();
+                                repetir=true;
+                            }
+                        }while(!respuesta.equals("N")); 
+                    } catch (IOException e) {
+                        System.err.println("Error de entrada de datos: "+e.getMessage());
+                    }
+                    listarServicios();
                     break;
                 case 6: //Consumición Mesa
+                    //consumicionMesa();
+                    listarConsumiciones();
                     break;
                 case 7: //Total Cuenta de Mesa
+                    totalCuenta();
                     break;
                 case 8: //Listado de los servicios de una mesa por fechas
                     break;
@@ -247,16 +267,19 @@ public class Menu {
     public static void entradaProductos(){
             int bandera = 0;
             char respuesta = 0;
+            float precio = 0F;
+            String codBarras="";
+            int cantidad = 0;
         try {
             System.out.print("Introduce un código de barras: ");
-            String codBarras = entrada.readLine();
+            codBarras = entrada.readLine();
             if (codBarras != "") {
-                producto.setDenominación(codBarras);
+                producto.setCod_barra(codBarras);
                 bandera = 0;
             } else {
                 bandera=1;
             }
-            System.out.print("Introduce e nombre de un producto: ");
+            System.out.print("Introduce el nombre de un producto: ");
             String nombre = entrada.readLine();
             if (nombre != "") {
                 producto.setDenominación(nombre);
@@ -264,9 +287,25 @@ public class Menu {
             } else {
                 bandera=2;
             }            
-            
+            System.out.print("Introduce el precio: ");
+            precio = Float.parseFloat(entrada.readLine());
+            if (nombre != "") {
+                producto.setPvp(precio);
+                bandera = 0;
+            } else {
+                bandera=2;
+            } 
+            System.out.print("Introduce la cantidad: ");
+            cantidad = Integer.parseInt(entrada.readLine());
+            if (nombre != "") {
+                producto.setUnidades(cantidad);
+                bandera = 0;
+            } else {
+                bandera=2;
+            }                        
+
         } catch (IOException ex) {
-            
+            System.err.println(ex.getMessage());
         }
         //Validaciones de entrada por teclado
         if (bandera == 0) {
@@ -367,6 +406,326 @@ public class Menu {
             e.printStackTrace();
         }
     }
+/** ***************************************************************************
+ *                           SERVICIO MESA
+ ******************************************************************************/    
+    public static void abrirServicioMesa() {
+        int bandera = 0;
+        char respuesta = 0;
+        int numMesa=0;
+        boolean noCamarero, mesaAbierta;
+        try {
+            do {
+                System.out.print("Introduce el nº de mesa (1/12): ");
+                numMesa = Integer.parseInt(entrada.readLine());
+                mesaAbierta = true;
+                //Ahora tengo que consultar si la mesa introducida aún está abierta o no
+                //Creo una función que me devuelva el estado de la mesa, si es true, 
+                // no puedo abrir el servicio en ella 
+                mesaAbierta = comprobarEstadoMesa(numMesa);
+                if (mesaAbierta) {
+                    System.err.println("La mesa está abierta ");
+                }
+                if (numMesa<0 || numMesa>12) {
+                    System.err.println("Debes de introducir un nº de mesa correcto(1/12)");
+                }
+                 servicioMesa.setNumeroMesa(numMesa);
+            } while ((mesaAbierta) || ((numMesa<=0) || (numMesa>12)));
+            
+            System.out.print("Introduce el NIF del camarero: ");
+            String nif = entrada.readLine();
+            if (nif != "") {
+                //Comprobamos que existe el camarero insertado
+                noCamarero = comprobarCamarero(nif);
+                if (!noCamarero) {
+                    bandera = 2;
+                } else {
+                    servicioMesa.setNif(nif);
+                }
+            } else {
+                bandera = 2;
+            }
+            //La fecha la automatizo
+            servicioMesa.getFecha();
+            //El nº de servicio auto-autoinccrementa
+            // debería leer el último servicio realizado y sumarle uno, para ello debo leer
+            // el archivo y obtener el valor del getNumeroServicio del último registro ingresado
+            // de momento creo lo siguiente
+            servicioMesa.getNumeroServicio();
+            int contador = 0;
+            if (servicioMesa.getNumeroServicio() == 0) {
+                contador = contador + 1;
+                servicioMesa.setNumeroServicio(contador);
+                //System.out.println(" "+ contador);
+            } else {
+                contador = servicioMesa.getNumeroServicio() + 1;
+                servicioMesa.setNumeroServicio(contador);
+                //System.out.println(" "+ contador);
+            }
+            // Al abrir el servicio, el estado de la mesa será true
+            servicioMesa.setAbierta(true);
+            // Paso a las validaciones de la entrada de datos
+            if (bandera == 0) {
+                System.out.println("Grabar los Datos :");
+                try {
+
+                    respuesta = entrada.readLine().charAt(0); //Siempre que se quiera separar una cadena de texto a carácteres o sacar un simple carácter de una cadena, para ello se utiliza el método charAt(). 
+                    if (respuesta == 's' || respuesta == 'S') {
+                        escribeFichero(servicioMesa, 3);
+                    }
+                } catch (IOException e) { //Las señales que se ha producido una excepción de E / S de algún tipo. Esta clase es la clase general de excepciones producidas por las operaciones fallidas o interrumpidas de E / S.
+                    e.printStackTrace();
+                }
+            } else {
+                switch (bandera) {
+                    case 1:
+                        System.out.println("Debes de introducir un nº de mesa");
+                        break;
+                    case 2:
+                        System.out.println("Debes de introducir un NIF");
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+        }
+
+    }
+    public static void listarServicios(){
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        String cadena = "";
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+                cadena = cadena + c.get(i).toString() + "\n";
+            }
+            System.out.println(cadena);
+        } 
+    }
+    public static boolean comprobarEstadoMesa(int numMesa){
+        boolean estado = false;
+        ArrayList<ServicioMesa> c = new ArrayList<ServicioMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        String cadena = "";
+        if (archivo.CrearArchivoServicioMesa()) {
+            c = archivo.LeerArchivoServicioMesa();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getNumeroMesa() == numMesa) {
+                    estado = c.get(i).isAbierta();
+                }
+            }
+        } 
+        return estado;
+    }
+    public static boolean comprobarCamarero(String nif){
+        boolean nifCanarero = false;
+        ArrayList<Camareros> c = new ArrayList<Camareros>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        String cadena = "";
+        if (archivo.CrearArchivoCamareros()) {
+            c = archivo.LeerArchivoCamareros();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getNIF().equals(nif)) {
+                    nifCanarero =true;
+                }
+            }
+        } 
+        return nifCanarero;
+    }
+/** ***************************************************************************
+ *                           CONSUMICIÓN MESA
+ ******************************************************************************/    
+    public static void consumicionMesa(){
+            int bandera = 0;
+            char respuesta = 0;
+            int numMesa = 0;
+            boolean mesaAbierta,cod;
+            float precioProducto = 0F;
+            float importe = 0F;    
+            int cantidad = 0;
+        try {
+        // Introducimos la cantidad de producto
+            System.out.print("Introduce la cantidad: ");
+            cantidad = Integer.parseInt(entrada.readLine());
+            if (cantidad != 0) {
+                consumicion.setUnidades(cantidad);
+                bandera = 0;
+            } else {
+                bandera=2;
+            }
+        // Solicitamos el cod. barras del producto
+            do {  
+                cod = false;
+                System.out.print("Introduce el cod de barras de un producto: ");
+                String codBarras = entrada.readLine();
+                if (codBarras != "") {
+                    if (!comprobarProducto(codBarras)) {
+                        System.err.println("No existe el producto");
+                    }
+                    cod=comprobarProducto(codBarras);
+                    consumicion.setCod_barra(codBarras);
+                    // Obtenemos el impote total, que será la cantidad que se ha introducido anteriormente 
+                    // por el importe del precio del producto
+                        precioProducto=obtenerPrecioProducto(codBarras);
+                        importe = cantidad * precioProducto;
+                        System.err.println("precioProducto: " + precioProducto);
+                        System.err.println("cantidad: " + cantidad);
+                        System.err.println("importe: " + importe);
+                        consumicion.setTotal(importe);
+        
+                } else {
+                    bandera=1;
+                }
+                
+            } while (!cod);
+        // Solicitamos el nº de mesa
+            do {
+                System.out.print("Introduce el nº de mesa (1/12): ");
+                numMesa = Integer.parseInt(entrada.readLine());
+                mesaAbierta = true;
+                //Ahora tengo que consultar si la mesa introducida aún está abierta o no
+                //Creo una función que me devuelva el estado de la mesa, si es true, 
+                // no puedo abrir el servicio en ella 
+                mesaAbierta = comprobarEstadoMesa(numMesa);
+                if (!mesaAbierta) {
+                    System.err.println("La mesa está cerrada ");
+                }
+                if (numMesa<0 || numMesa>12) {
+                    System.err.println("Debes de introducir un nº de mesa correcto(1/12)");
+                }
+                 consumicion.setNumeroServicio(numMesa);
+            } while ((!mesaAbierta) || ((numMesa<=0) || (numMesa>12)));            
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+        }
+        //Validaciones de entrada por teclado
+        if (bandera == 0) {
+            //Indicamos si se quiere gravar los datos
+            System.out.println("Grabar los Datos :");
+            try {
+                
+                respuesta = entrada.readLine().charAt(0); //Siempre que se quiera separar una cadena de texto a carácteres o sacar un simple carácter de una cadena, para ello se utiliza el método charAt(). 
+                if (respuesta == 's' || respuesta == 'S') {
+                    escribeFichero(consumicion, 4);
+                }
+            } catch (IOException e) { //Las señales que se ha producido una excepción de E / S de algún tipo. Esta clase es la clase general de excepciones producidas por las operaciones fallidas o interrumpidas de E / S.
+                e.printStackTrace();
+            }
+        } else {
+            switch(bandera){
+                case 1:
+                    System.out.println("Debes de introducir un código de barras");
+                    break;
+                case 2:
+                    System.out.println("Debes de introducir una cantidad");
+                    break;                    
+                default:
+                    break;
+            }
+        }
+    }
+    public static float obtenerPrecioProducto (String codProducto){
+        float precio = 0F;
+        ArrayList<Productos> c = new ArrayList<Productos>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        String cadena = "";
+        if (archivo.CrearArchivoProductos()) {
+            c = archivo.LeerArchivoProductos();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getCod_barra().toString().equals(codProducto)) {
+                    precio = c.get(i).getPvp();
+                }
+            }
+        } 
+        return precio;
+    }
+    public static boolean comprobarProducto(String codProducto){
+        boolean cod = false;
+        ArrayList<Productos> c = new ArrayList<Productos>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        String cadena = "";
+        if (archivo.CrearArchivoProductos()) {
+            c = archivo.LeerArchivoProductos();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getCod_barra().equals(codProducto)) {
+                    cod =true;
+                }
+            }
+        } 
+        return cod;
+    }
+    public static void listarConsumiciones(){
+        ArrayList<ConsumicionMesa> c = new ArrayList<ConsumicionMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        String cadena = "";
+        if (archivo.CrearArchivoConsumicionMesa()) {
+            c = archivo.LeerArchivoConsumicionMesa();
+            for (int i = 0; i < c.size(); i++) {
+                cadena = cadena + c.get(i).toString() + "\n";
+            }
+            System.out.println(cadena);
+        } 
+    }
+/** ***************************************************************************
+ *                           TOTAL CUENTA
+ ******************************************************************************/    
+    public static void totalCuenta(){
+        try {
+            System.out.print("Dame la mesa: ");
+            int numMesa = Integer.parseInt(entrada.readLine());
+            if (comprobarEstadoMesa(numMesa)) {
+                System.err.println("La mesa está abierta");
+            }
+            obtenerTotalConsumiciones(numMesa);
+ 
+            System.err.println("Total: " + obtenerTotalConsumiciones(numMesa));
+            if (!modificarEstadoMesa(numMesa)) {
+                System.err.println("La mesa está cerrado");
+            }
+            
+        } catch (IOException e) { //Las señales que se ha producido una excepción de E / S de algún tipo. Esta clase es la clase general de excepciones producidas por las operaciones fallidas o interrumpidas de E / S.
+            e.printStackTrace();
+        }        
+    }
+    public static float obtenerTotalConsumiciones(int numMesa){
+        float total = 0F;
+        ArrayList<ConsumicionMesa> c = new ArrayList<ConsumicionMesa>();
+        Archivo_Objetos archivo = new Archivo_Objetos();
+        String cadena = "";
+        if (archivo.CrearArchivoConsumicionMesa()) {
+            c = archivo.LeerArchivoConsumicionMesa();
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getNumeroServicio() == numMesa) {
+                    total = total + c.get(i).getTotal();
+                }
+             }
+        } 
+        return total;
+    }
+    public static boolean modificarEstadoMesa(int numMesa){
+        boolean estado = true;
+              if (archivo.CrearArchivoServicioMesa()) {
+                c1 = archivo.LeerArchivoServicioMesa();
+                for (int i = 0; i < c1.size(); i++) {
+                    if (c1.get(i).getNumeroMesa() !=0) { // Debo de poner el condicional pata evitar: Exception in thread "main" java.lang.NullPointerExceptionel 
+                        if (c1.get(i).getNumeroMesa()==numMesa) {
+                                     c1.get(i).setAbierta(false);
+                            //Guardamos los cambios pasando los set y la posición del producto dentro del archivo
+                            //abría que validar que caundo los números imtroducidos pr teclado son nulos no nos dé el error java.lang.NumberFormatException: For input string: ""
+                            archivo.ModificaArchivoServicioMesa(c1,i); // i es la posición que ocupa el producto en el arrayList
+                            estado = false;
+                        }
+                    }
+                }
+              } 
+      return estado;
+    }
+    
+    
     
     public static void escribeFichero(Object objeto, int valor) {
         boolean abrir;
@@ -396,12 +755,25 @@ public class Menu {
             } else {
                 archivo.AnadirArchivoProductos(nuevo);
             }
-        } 
-    }
-
-
+        } else if (valor == 3){ // ServicioMesa
+            abrir = archivo.CrearArchivoServicioMesa();
+            ServicioMesa nuevo = new ServicioMesa();
+            nuevo = (ServicioMesa) objeto;
+            if (abrir == false) {
+                archivo.EscribirArchivoServicioMesa(nuevo);
+            } else {
+                archivo.AnadirArchivoServicioMesa(nuevo);
+            }
+        } else if (valor == 4){ // ConsumicionMesa
+            abrir = archivo.CrearArchivoConsumicionMesa();
+            ConsumicionMesa nuevo = new ConsumicionMesa();
+            nuevo = (ConsumicionMesa) objeto;
+            if (abrir == false) {
+                archivo.EscribirArchivoConsumicionMesa(nuevo);
+            } else {
+                archivo.AnadirArchivoConsumicionMesa(nuevo);
+            }
+        }
+    }    
         
-    
-    
-          
 } //end class Menu
