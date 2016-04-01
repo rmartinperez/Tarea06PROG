@@ -64,4 +64,5 @@ public class Productos implements Serializable{
         return "Productos{" + "cod_barra=" + cod_barra + ", denominaci\u00f3n=" + denominación + ", pvp=" + pvp + ", unidades=" + unidades + '}';
     }
     
+
 }

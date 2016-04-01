@@ -65,8 +65,8 @@ public class Menu {
                         //archivo.listarCamareros();
                         listarCamareros();
                         //buscarCamarero();
-                        //eliminarCamarero();
-                        //modificarDireccionCamarero();
+                        eliminarCamarero();
+                        modificarDireccionCamarero();
                      break;
                 case 3: //Entrada Productos
   
