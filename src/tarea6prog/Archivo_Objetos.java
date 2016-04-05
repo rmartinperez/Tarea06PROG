@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tarea6prog_ArrayList;
+package tarea6prog;
 
 /**
  *
@@ -28,7 +28,7 @@ public class Archivo_Objetos {
     public boolean CrearArchivoCamareros(){
         boolean b=false;
         try {
-            f=new File("tarea6prog_ArrayList_camareros.txt");
+            f=new File("tarea6prog_camareros.txt");
             if (f.exists())
             b=true;
         } catch (Exception e){
@@ -87,7 +87,7 @@ public class Archivo_Objetos {
     public boolean CrearArchivoProductos(){
         boolean b=false;
         try {
-            f=new File("tarea6prog_ArrayList_productos.txt");
+            f=new File("tarea6prog_productos.txt");
             if (f.exists())
             b=true;
         } catch (Exception e){
@@ -209,7 +209,7 @@ public class Archivo_Objetos {
     public boolean CrearArchivoServicioMesa(){
         boolean b=false;
         try {
-            f=new File("tarea6prog_ArrayList_serviciomesa.txt");
+            f=new File("tarea6prog_serviciomesa.txt");
             if (f.exists())
             b=true;
         } catch (Exception e){
@@ -291,7 +291,7 @@ public class Archivo_Objetos {
     public boolean CrearArchivoConsumicionMesa(){
         boolean b=false;
         try {
-            f=new File("tarea6prog_ArrayList_consumicionmesa.txt");
+            f=new File("tarea6prog_consumicionmesa.txt");
             if (f.exists())
             b=true;
         } catch (Exception e){
