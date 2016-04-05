@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tarea6prog;
+package tarea6prog_List;
 
 import java.io.Serializable;
 
@@ -11,7 +11,7 @@ import java.io.Serializable;
  *
  * @author Rmartin
  */
-public class ConsumicionMesa extends Productos implements Serializable {
+public class ConsumicionMesa implements Serializable {
     
     private String cod_barra; // Producto
     private int unidades;
@@ -64,5 +64,6 @@ public class ConsumicionMesa extends Productos implements Serializable {
     public String toString() {
         return "ConsumicionMesa{" + "cod_barra=" + cod_barra + ", unidades=" + unidades + ", numeroMesa=" + numeroServicio + ", total=" + total + '}';
     }
-
+    
+    
 }

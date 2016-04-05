@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tarea6prog_BIS;
+package tarea6prog_List;
 
 import java.io.File; // Librería para trabajar con ficheros
 import java.io.FileInputStream; //Librería para crear el flujo hacia el fichero

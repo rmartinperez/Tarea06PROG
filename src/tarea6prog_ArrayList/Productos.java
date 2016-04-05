@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tarea6prog_BIS;
+package tarea6prog_ArrayList;
 
 import java.io.Serializable;
 
@@ -64,4 +64,5 @@ public class Productos implements Serializable{
         return "Productos{" + "cod_barra=" + cod_barra + ", denominaci\u00f3n=" + denominación + ", pvp=" + pvp + ", unidades=" + unidades + '}';
     }
     
+
 }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tarea6prog;
+package tarea6prog_List;
 
 import java.io.Serializable;
 import java.util.Calendar;
@@ -12,7 +12,7 @@ import java.util.Calendar;
  *
  * @author Rmartin
  */
-public class ServicioMesa  implements Serializable {
+public class ServicioMesa implements Serializable {
 
     //private static final long serialVersionUID = 1L;
 
@@ -87,5 +87,5 @@ public class ServicioMesa  implements Serializable {
         return "ServicioMesa{" + "numeroMesa=" + numeroMesa + ", nif=" + nif + ", fecha=" + fecha + ", numeroServicio=" + numeroServicio + ", abierta=" + abierta + '}';
     }
     
-
+    
 }
